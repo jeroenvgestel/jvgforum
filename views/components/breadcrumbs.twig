@@ -1,0 +1,12 @@
+{% if breadcrumbs|length > 1 %}
+<section class="breadcrumbs">
+    <ul>
+        {% for crumb in breadcrumbs %}
+        <li><a href="{{crumb.url}}">{{crumb.text}}</a></li>                    
+        {% endfor %}
+    </ul>
+    <div class="breadcrumbs_links">
+        <a href="{{path}}forum/recent"><span class="material-symbols-outlined">newsmode</span>Recent Content</a>
+    </div>
+</section>    
+{% endif %}

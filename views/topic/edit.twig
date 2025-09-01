@@ -1,0 +1,80 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <section class="newtopic_container">
+        <label for="title">Title</label><br>
+        <input type="text" name="title" value="{{edit_info.title}}" id="title">
+        <br><br>
+        Message<br>
+        <div id="newtopic_msg">
+            {{edit_info.message|raw}}
+        </div>
+        <div class="newtopic_buttons">
+            <button class="btn" onclick="sendEditTopic()">Save Edit</button>
+        </div>
+    </section>
+    <input type="hidden" name="topic_index" value="{{edit_info.topic_index}}">
+    <input type="hidden" name="post_index" value="{{edit_info.post_index}}">
+    
+
+
+
+{% endblock %}
+
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block jscode %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<script>
+    const quill = new Quill('#newtopic_msg', 
+    {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image', 'video'],
+            ],
+        },
+    });
+
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', imageHandler);
+
+
+
+    async function sendEditTopic()
+    {
+        const topic_index = document.querySelector("input[name='topic_index']").value;
+        const post_index = document.querySelector("input[name='post_index']").value;
+        const message = quill.getSemanticHTML();      
+
+        const title = document.querySelector("input[name='title']");
+        if(title.value === '')
+        {
+            title.setCustomValidity('This field is required!');
+            title.reportValidity();
+            return;
+        }
+
+
+        const postUrl = '{{path}}topic/saveedit';
+        const postData = {
+            'topic_index': topic_index,
+            'post_index': post_index,
+            'title': title.value,
+            'message': message,
+        };
+
+        await postAndRedirect(postUrl, postData);
+    }
+
+</script>
+{% endblock %}

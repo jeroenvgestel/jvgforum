@@ -1,0 +1,257 @@
+{% extends 'master.twig' %}
+
+{% block pagebody %}
+
+    <div class="topic_buttonbar">
+        {% include "components/pagination.twig" %}
+        {% if user.isModerator or user.isAdministrator %}       
+        <div class="topic_dropdown">
+            <button class="btn topic_dropbtn">Moderate</button>
+            <div class="topic_dropdown_content">
+                <a href="{{path}}topic/edit/{{topic_info.index}}">Edit Topic</a>
+                <a href="{{path}}topic/move/{{topic_info.index}}">Move Topic</a>
+                <a href="javascript:toggleCloseTopic({{topic_info.index}})">{% if topic_info.isClosed %}Open Topic{% else %}Close Topic{% endif %}</a>
+                <a href="javascript:togglePinTopic({{topic_info.index}})">{% if topic_info.isPinned %}Un-Pin Topic{% else %}Pin Topic{% endif %}</a>
+                <a href="javascript:toggleHideTopic({{topic_info.index}})">{% if topic_info.isHidden %}Un-Hide Topic{% else %}Hide Topic{% endif %}</a>
+            </div>
+        </div> 
+        {% endif %}
+    </div>
+
+    <section class="postlist_container">
+        <ul>
+            {% for post in postlist %}
+            {% if post.isHidden %}
+            <li id="post{{post.index}}" class="pe_hidden">
+            {% else %}
+            <li id="post{{post.index}}">
+            {% endif %}
+                <div class="pe_titlebar_name">
+                    <a href="{{post.user.url}}">{{post.user.name}}</a>
+                </div>
+                <div class="pe_titlebar_tools">
+                    <div class="pe_titlebar_tools_date">Posted {{post.date}}</div>
+                    <div class="pe_titlebar_tools_buttons">
+
+                    </div>
+                </div>
+                <div class="pe_userinfo">
+                    <div class="pe_userinfo_avatar">
+                        {% if post.user.avatarUrl|length > 0 %}
+                        <img src="{{post.user.avatarUrl}}" alt="{{ post.user.name }}_Avatar">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                <rect x="0" y="0" width="100%" height="100%" {{post.user.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                style="font-size:45px;fill:white;">{{post.user.name|first|upper}}</text>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="pe_userinfo_groupname">
+                        {{post.user.prefix|raw}}{{post.user.groupName}}{{post.user.suffix|raw}}
+                    </div>
+                    <div class="pe_userinfo_postcount">
+                        <span class="material-symbols-outlined pe_userinfo_postcount_bubble">chat_bubble</span>
+                        <div class="pe_userinfo_postcount_number">{{post.user.postCount}}</div>
+                    </div>                      
+                </div>
+                <div class="pe_message">
+                    {{post.message|raw}}
+                    {% if post.lastedit.time != 0 %}
+                    <div class="pe_lastedit">Last edited by <a href="{{post.lastedit.url}}">{{post.lastedit.prefix|raw}}{{post.lastedit.name}}{{post.lastedit.suffix|raw}}</a>, {{post.lastedit.time}}</div>
+                    {% endif %}
+                </div>
+                <div class="pe_footer_left">&nbsp;</div>
+                <div class="pe_footer_right">
+                    {% if user.login %}
+                    <div class="pe_footer_right_tools">
+                        <a href="javascript:addQuote({{post.index}}, '{{post.user.name}}', '{{post.date}}')">Quote</a>
+                    </div>
+                    {% if post.canEdit %}
+                    <div class="pe_footer_right_tools">
+                        <a href="{{post.editUrl}}">Edit</a>
+                    </div>
+                    {% endif %}
+                    {% if post.canDelete %}
+                    <div class="pe_footer_right_tools">
+                        {% if post.isHidden %}
+                        <a href="javascript:toggleHidePost({{post.index}})">Unhide</a>
+                        {% else %}
+                        <a href="javascript:toggleHidePost({{post.index}})">Hide</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="pe_footer_liked">
+                        {% for like in post.likes %}
+                            <a href="{{like.url}}">{{like.prefix|raw}}{{like.name}}{{like.suffix|raw}}</a> {% if loop.last == false %},{% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="pe_footer_right_react"><a href="javascript:likePost({{post.index}})" class="pe_like_link">Like {% if post.likes|length > 0 %} <span class="small">({{post.likes|length}})</span> {% endif %}</a></div>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+
+            {% if topic_info.canPost == 1 %}
+            <li>
+                <div class="pe_titlebar_name">
+                    <a href="{{user.url}}">{{user.displayname}}</a>
+                </div>
+                <div class="pe_titlebar_tools"></div>
+                <div class="pe_userinfo">
+                    <div class="pe_userinfo_avatar">
+                        {% if user.avatarUrl|length > 0 %}
+                        <img src="{{user.avatarUrl}}" alt="{{ user.name }}_Avatar">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                <rect x="0" y="0" width="100%" height="100%" {{user.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                style="font-size:45px;fill:white;">{{user.displayname|first|upper}}</text>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="pe_userinfo_groupname">
+                        {{user.group.prefix|raw}}{{user.group.name}}{{user.group.suffix|raw}}
+                    </div>
+                    <div class="pe_userinfo_postcount">
+                    </div>                      
+                </div>
+                <div class="pe_qrmessage">
+                    <div id="pe_quickreply">
+                    </div>
+                    <div class="pe_quickreply_buttons">
+                        <button class="btn" onclick="sendQuickReply()">Send</button>
+                    </div>
+                    <input type="hidden" name="topic_index" value="{{topic_info.index}}">
+                </div>
+                <div class="pe_footer_left"></div>
+                <div class="pe_footer_right">
+                </div>
+            </li>            
+            {% else %}
+            <li>
+                <div class="pe_noperml"></div>
+                <div class="pe_nopermr">
+                    <i>You can not reply to this topic</i>
+                </div>
+            </li>               
+            {% endif %}
+        </ul>        
+    </section>
+
+    {% include "components/pagination.twig" %}
+    
+
+{% endblock %}
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block jscode %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<script>
+    const quill = new Quill('#pe_quickreply', 
+    {
+        placeholder: 'Reply to this topic..',
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image', 'video'],
+            ],
+        },
+    });
+
+
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', imageHandler);
+
+    async function sendQuickReply()
+    {
+        const topic_index = document.querySelector("input[name='topic_index']").value;
+        const message = quill.getSemanticHTML();
+
+        const postUrl = '{{path}}topic/addreply';
+        const postData = {
+            'topic_index': topic_index,
+            'message': message
+        };
+
+        await postAndRedirect(postUrl, postData);
+    }
+
+    async function likePost(post_index)
+    {
+        const getUrl = `{{path}}post/like/${post_index}`;
+        const data = await sendGetRequest(getUrl);
+
+        if(data.success === false) {
+            showErrorDialog(data.message);
+            return;
+        }
+
+        const post = document.getElementById(`post${post_index}`);
+        const likeContainer = post.querySelector('.pe_footer_liked');
+        const likeLink = post.querySelector('.pe_like_link');
+
+        if(data.data.length === 0)
+        {
+            likeContainer.innerHTML = "";
+            likeLink.innerHTML = "Like";
+        }
+        else
+        {
+            likeContainer.innerHTML = "";
+            likeLink.innerHTML = `Like <span class="small">(${data.data.length})</span>`;
+
+            data.data.forEach(e => {
+                likeContainer.innerHTML += `<a href="${e.url}">${e.prefix}${e.name}${e.suffix}</a>, `;
+            });
+
+            likeContainer.innerHTML = likeContainer.innerHTML.replace(/,\s*$/, "");
+        }
+
+    }
+
+    function addQuote(post_index, username, date)
+    {
+        const postcontainer = document.getElementById(`post${post_index}`);
+        const postmessage = postcontainer.querySelector('.pe_message').innerHTML;
+
+        const quote = `<blockquote class="pe_quote"><div class="pe_quote_citation">${date}, ${username} said:</div><div class="pe_quote_content">${postmessage}</div></blockquote>`;
+        
+        //FIXME Blockquote is added once for each div for some reason, not just 1 blockquote with 2 divs in it.
+        quill.clipboard.dangerouslyPasteHTML(quote, 'user'); 
+        
+    }
+
+    async function toggleHidePost(post_index)
+    {
+        const getUrl = `{{path}}post/toggleHide/${post_index}`;
+        await getAndReload(getUrl);
+    }
+
+    async function toggleHideTopic(topic_index)
+    {
+        const getUrl = `{{path}}topic/toggleHide/${topic_index}`;
+        await getAndReload(getUrl);
+    }    
+
+    async function toggleCloseTopic(topic_index)
+    {
+        const getUrl = `{{path}}topic/toggleClose/${topic_index}`;
+        await getAndReload(getUrl);
+    }
+
+    async function togglePinTopic(topic_index)
+    {
+        const getUrl = `{{path}}topic/togglePin/${topic_index}`;
+        await getAndReload(getUrl);
+    }       
+
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+    {% for category in forum_data %}
+    <section class="fe_container">
+        <h2>{{category.name}}</h2>
+        <ul>
+            {% for forum in category.children %}
+            <li>
+                <span class="fe_icon">
+                    {% if forum.havenew == true %}
+                    <i class="material-symbols-outlined fe_icon_on">forum</i>
+                    {% else %}                            
+                    <i class="material-symbols-outlined">forum</i>
+                    {% endif %}
+                </span>
+                <span class="fe_name">
+                    <a href="{{forum.url}}">{{forum.name}}</a><br>
+                    {% if forum.children|length > 0 %}
+                    <ul>
+                        <li class="text-medium">Subforums:</li>
+                        {% for subforum in forum.children %}
+                        <li><a href="{{subforum.url}}">{{subforum.name}}</a>{% if loop.last == false %},{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}                        
+                    <span class="fe_desc">{{forum.desc}}</span>
+                    {% endif %}
+                </span>
+                <span class="fe_lastpost">
+                    {% if forum.post_count != 0 %}
+                    <span class="fe_postcount">{{forum.post_count}}<br>posts</span>
+                    <div class="fe_lastpost_icon">
+                        <a href="{{forum.lastpost.user.url}}">
+                            {% if forum.lastpost.user.avatarUrl|length > 0 %}
+                                <img src="{{forum.lastpost.user.avatarUrl}}" alt="{{ forum.lastpost.user.name }}_Avatar">
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                    <rect x="0" y="0" width="100%" height="100%" {{forum.lastpost.user.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                    <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                    style="font-size:45px;fill:white;">{{forum.lastpost.user.name|first|upper}}</text>
+                                </svg>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="fe_lastpost_topic">
+                        <b><a href="{{forum.lastpost.topic.url}}" title="{{forum.lastpost.topic.name}}">{{forum.lastpost.topic.title|u.truncate(30, '...')}}</a></b><br>
+                        By <a href="{{forum.lastpost.user.url}}">{{forum.lastpost.user.prefix|raw}}{{forum.lastpost.user.name}}{{forum.lastpost.user.suffix|raw}}</a>, {{forum.lastpost.date}}
+                    </div>
+                    {% else %}
+                    <span class="fe_noposts">No posts here yet</span>
+                    {% endif %}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>        
+    </section>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <section class="newtopic_container">
+        <label for="forum_index">Move to forum:</label><br>
+        <select name="forum_index" class="form-select form-select-sm" size="20" id="forum_index">
+            {% for category in forum_list %}
+                <optgroup label="{{category.name}}">
+                    {% for forum in category.children %}
+                    <option value="{{forum.index}}" {% if topic_info.forum.index == forum.index %}selected{% endif %}>{{forum.name}}</option>    
+                        {% for subforum in forum.children %}
+                        <option value="{{subforum.index}}" {% if topic_info.forum.index == subforum.index %}selected{% endif %}> -- {{subforum.name}}</option>    
+                        {% endfor %}
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+        <div class="newtopic_buttons">
+            <button class="btn" onclick="sendMoveTopic()">Move Topic</button>
+        </div>
+    </section>
+    <input type="hidden" name="topic_index" value="{{topic_info.topic.index}}">
+
+    
+
+
+
+{% endblock %}
+
+
+{% block jscode %}
+<script>
+    async function sendMoveTopic()
+    {
+        const topic_index = document.querySelector("input[name='topic_index']").value;
+        const forum_index = document.querySelector("select[name='forum_index']").value;
+
+        const postUrl = '{{path}}topic/domove';
+        const postData = {
+            'topic_index': topic_index,
+            'forum_index': forum_index,
+        };
+
+        await postAndRedirect(postUrl, postData);
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <section class="usercp_container">
+        <div class="usercp_left">
+            <div class="usercp_avatar">
+                {% if member_info.avatarUrl|length > 0 %}
+                    <img src="{{member_info.avatarUrl}}"alt="{{ member_info.name }}_Avatar">
+                {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                        <rect x="0" y="0" width="100%" height="100%" {{member_info.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                        <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                        style="font-size:45px;fill:white;">{{member_info.name|first|upper}}</text>
+                    </svg>
+                {% endif %}`
+            </div>
+            <dl>
+                <dt>Name</dt>
+                <dd>{{member_info.name}}</dd>
+                <dt>Group</dt>
+                <dd>{{member_info.prefix|raw}}{{member_info.groupName}}{{member_info.suffix|raw}}</dd>
+                <dt>Member Since</dt>
+                <dd>{{member_info.regdate}}</dd>
+                <dt>Last Active</dt>
+                <dd>{{member_info.last_active}}</dd>
+                <dt>Last Post</dt>
+                <dd>{{member_info.last_post}}</dd>
+                <dt>Total Posts</dt>
+                <dd>{{member_info.posts}}</dd>
+                <dt>Liked Posts</dt>
+                <dd>{{member_info.likes}}</dd>
+            </dl>
+        </div>
+        <div class="usercp_right"></div>
+    </section>
+    
+
+
+
+{% endblock %}

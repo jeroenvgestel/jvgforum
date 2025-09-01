@@ -1,0 +1,14 @@
+{% if pagination.pageCount > 1 %}
+<section class="pagination">
+    Page: 
+    <span class="pages"> 
+        {% for i in range(1, pagination.pageCount) %}
+            {% if i == pagination.currentPage %}
+            <span class="curpage">{{i}}</span>
+            {% else %}  
+            <a href="{{pagination.url}}/{{i}}">{{i}}</a>              
+            {% endif %}           
+        {% endfor %}
+    </span>
+</section>
+{% endif %}

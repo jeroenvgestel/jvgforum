@@ -1,0 +1,94 @@
+
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+<form method="post" action="{{ registration_form_post_url }}" onsubmit="registerAccount()">
+    <section class="newtopic_container">
+
+        {%  if error %}
+            <div class="alert_error">{{ error|raw }}</div>
+        {%  endif %}
+
+        <label for="username">Username: <span class="small text-mid"> (The username is used to log-in, you can choose a different display name later, 6-12 characters alfanumeric)</span></label><br>
+        <input type="text" name="username" value="" id="username">
+
+        <br><br>
+
+
+        <label for="email">Email Address: <span class="small text-mid"> (Please use a valid email address, it is required to activate your account)</span></label><br>
+        <input type="text" name="email" value="" id="email">
+        <br><br>
+
+        <label for="password1">Password: <span class="small text-mid"> (Minimal 8 characters, must contain at least 1 uppercase character, 1 digit and 1 special character)</span></label><br>
+        <input type="password" name="password1" value="" id="password1">
+        <br>
+
+        <label for="password2">Password (again):</label><br>
+        <input type="password" name="password2" value="" id="password2">
+        <br><br>
+
+        <label for="verification">Human Verification: <img src="{{path}}captcha" alt="Captcha"> <span class="small text-mid"> (Please enter this code in the field below)</span> </label><br>
+        <input type="text" name="verification" id="verification">
+        <br><br>
+
+        <div class="newtopic_buttons">
+            <button class="btn" onclick="registerAccount()">Create Account</button>
+        </div>
+    </section>
+</form>
+{% endblock %}
+
+{% block jscode %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<script>
+
+    function registerAccount()
+    {
+        const username = document.querySelector("input[name='username']");
+        const email = document.querySelector("input[name='email']");
+        const password1 = document.querySelector("input[name='password1']");
+        const password2 = document.querySelector("input[name='password2']");
+        const verification = document.querySelector("input[name='verification']");
+
+        if(!username.value.match(/^[a-zA-Z0-9]{6,20}$/))
+        {
+            username.setCustomValidity('Username can only contain letters and numbers and must be between 6 and 20 characters long');
+            username.reportValidity();
+            return false;
+        }
+
+        if(email.value.length < 5 || !email.value.match(/^[\w.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,6}/))
+        {
+            email.setCustomValidity('Please enter a valid email address, we will send a email to activate your account');
+            email.reportValidity();
+            return false;
+        }
+
+        if(!password1.value.match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d\S]{8,}$/))
+        {
+            password1.setCustomValidity('Password must be at least 8 characters, contain lowercase, uppercase, number and special character');
+            password1.reportValidity();
+            return false;
+        }
+        
+        if(password1.value !== password2.value)
+        {
+            password2.setCustomValidity('Both passwords need to be the exact same');
+            password2.reportValidity();
+            return false;
+        }
+
+        if(verification.value.length === 0)
+        {
+            verification.setCustomValidity('Please enter the Human Verification Code');
+            verification.reportValidity();
+            return false;
+        }
+
+        return true;
+    }
+
+</script>
+{% endblock %}

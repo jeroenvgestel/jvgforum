@@ -1,0 +1,63 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <section class="newtopic_container">
+        <div id="newtopic_msg">{{post_info.message|raw}}
+        </div>
+        <div class="newtopic_buttons">
+            <button class="btn" onclick="sendSavePost()">Save</button>
+        </div>
+    </section>
+    <input type="hidden" name="post_index" value="{{post_info.index}}">
+    
+
+
+
+{% endblock %}
+
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block jscode %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<script>
+    const quill = new Quill('#newtopic_msg', 
+    {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image', 'video'],
+            ],
+        },
+    });
+
+
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', imageHandler);
+
+
+
+    async function sendSavePost()
+    {
+        const post_index = document.querySelector("input[name='post_index']").value;
+        const message = quill.getSemanticHTML();      
+
+        const postUrl = '{{path}}post/update/' + post_index;
+        const postData = {
+            'post_index': post_index,
+            'message': message,
+        };
+
+        await postAndRedirect(postUrl, postData);
+    }
+
+</script>
+{% endblock %}

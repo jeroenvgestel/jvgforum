@@ -1,0 +1,80 @@
+<header>
+    <a href="{{path}}"><h1>{{title}}</h1></a>
+    <nav class="navbar">
+        
+        {% if user.login %}        
+        <div class="avatar">
+            {% if user.avatarUrl|length > 0 %}
+                <img src="{{user.avatarUrl}}" alt="{{ user.name }}_Avatar">
+            {% else %}            
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                    <rect x="0" y="0" width="100%" height="100%" {{user.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                    <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                    style="font-size:45px;fill:white;">{{user.displayname|first|upper}}</text>
+                </svg>
+            {% endif %}
+        </div>
+        <div class="nav-buttons">
+            <div class="dropdown">
+                <input type="checkbox" id="dropdown-toggle">
+                <label for="dropdown-toggle" class="nav-button">{{user.group.prefix|raw}}{{user.displayname}}{{user.group.suffix|raw}}</label>
+                <div class="dropdown-content">
+                    <div class="dropdown-content-menu">
+                        <dl>
+                            <dt>Content</dt>
+                            <dd>
+                                <ul>
+                                    <li><a href="">Profile</a></li>
+                                    <li><a href="{{path}}inbox">Private Messages</a></li>
+                                    <li><a href="javascript:MarkAllRead()">Mark site read</a></li>
+                                </ul>
+                            </dd>
+                            <dt>Settings</dt>
+                            <dd>
+                                <ul>
+                                    <li><a href="">Change Password</a></li>
+                                </ul>
+                            </dd>
+                            {% if user.isAdministrator == true or user.isModerator == true %}
+                            <dt>Staff</dt>
+                            <dd>
+                                <ul>
+                                    {% if user.isModerator == true %}
+                                    <li><a href="">Moderator CP</a></li>
+                                    {% endif %}
+                                    {% if user.isAdministrator == true %}
+                                    <li><a href="">Admin CP</a></li>
+                                    {% endif %}
+                                </ul>
+                            </dd>
+                            {% endif %}
+                        </dl>
+                        <a href="{{path}}logout">Sign Out</a>
+                    </div>
+                </div>
+            </div>        
+            <a href="{{path}}inbox" class="nav-button" title="Private Messages">
+                <span class="material-symbols-outlined">mail</span>
+                {% if user.inbox > 0 %}
+                    <span class="nav-button-badge">{{ user.inbox }}</span>
+                {% endif %}
+            </a>
+            
+        </div>
+
+        {% else %}
+        <div class="nav-buttons">
+            <a href="{{path}}login" class="nav-button">Sign in</a>
+            <a href="{{path}}register" class="nav-button">Register</a>
+        </div>
+        {% endif %}    
+
+
+
+
+        <div class="search-container">
+            <label for="search_all"></label>
+            <input type="text" placeholder="Search..." class="search-box" id="search_all">
+        </div>
+    </nav>
+</header>       

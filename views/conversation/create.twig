@@ -1,0 +1,84 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <section class="newtopic_container">
+        <label for="receipientes">Recipients: <span class="small text-mid"> ( Multiple names possible, separated by comma )</span></label><br>
+        <input type="text" name="receipients" id="receipientes">
+        <br><br>
+
+        <label for="title">Title</label><br>
+        <input type="text" name="title" id="title">
+        <br><br>
+
+        Message<br>
+        <div id="newtopic_msg">
+        </div>
+        <div class="newtopic_buttons">
+            <button class="btn" onclick="sendPrivateMessage()">Send</button>
+        </div>
+    </section>
+
+{% endblock %}
+
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block jscode %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<script>
+    const quill = new Quill('#newtopic_msg',
+    {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image', 'video'],
+            ],
+        },
+    });
+
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', imageHandler);
+
+
+
+    async function sendPrivateMessage()
+    {
+        const message = quill.getSemanticHTML();      
+
+        const receipients = document.querySelector("input[name='receipients']");
+        if(receipients.value === '')
+        {
+            receipients.setCustomValidity('This field is required!');
+            receipients.reportValidity();
+            return;
+        }
+
+        const title = document.querySelector("input[name='title']");
+        if(title.value === '')
+        {
+            title.setCustomValidity('This field is required!');
+            title.reportValidity();
+            return;
+        }        
+
+
+        const postUrl = '{{path}}conversation/create';
+        const postData = {
+            'receipients': receipients.value,
+            'title': title.value,
+            'message': message,
+        };
+
+        await postAndRedirect(postUrl, postData);
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <section class="newtopic_container">
+
+        {%  if error %}
+        <div class="alert_error">{{ error|raw }}</div>
+        {%  endif %}
+
+        <form method="post" action="{{ url }}login">
+            <label for="username">Username:</label><br>
+            <input type="text" name="username" id="username">
+
+            <br><br>
+
+            <label for="password">Password</label><br>
+            <input type="password" name="password" id="password">
+
+            <br><br>
+
+            <input type="checkbox" name="rememberme" id="rememberme" value="yes">
+            <label for="rememberme">Remember me</label>
+
+            <br><br>
+
+            <ul>
+                <li><a href="{{ path }}lostpassword">I forgot my password</a></li>
+                <li><a href="{{ path }}register">Register an account</a></li>
+            </ul>
+
+            <div class="newtopic_buttons">
+                <button class="btn">Login</button>
+            </div>
+        </form>
+    </section>
+{% endblock %}

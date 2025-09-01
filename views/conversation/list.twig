@@ -1,0 +1,68 @@
+
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+<div class="topic_buttonbar">
+    {% include "components/pagination.twig" %}
+    <span><a href="{{path}}conversation/create"><button class="btn">Start new converation</button></a></span>
+</div>
+
+
+
+<section class="topiclist_container">
+    <ul>
+        {% for topic in conversationList %}
+        <li id="topic{{topic.index}}">
+            <div class="te_icon {% if topic.hasNewPosts == true %}te_icon_on{% endif %}">
+                {% if topic.is_closed %}
+                    <i class="material-symbols-outlined">lock</i>
+                {% else %}
+                    <i class="material-symbols-outlined">forum</i>
+                {% endif %}
+            </div>
+            <div class="te_name {% if topic.hasNewPosts == true %}te_unseen{% endif %}">
+                <a href="{{topic.url}}">{{topic.title}}</a><br>
+                Started by <a href="{{topic.startPoster.url}}" class="te_starter_link">{{topic.startPoster.prefix|raw}}{{topic.startPoster.name}}{{topic.startPoster.suffix|raw}}</a>,&nbsp;{{topic.startPoster.date}}
+            </div>
+            <div class="te_postcount">
+                <div class="te_postcount_replies">{{topic.posts}} replies</div>
+            </div>
+            <div class="te_lastpost">
+                <div class="te_lastpost_icon">
+                    <a href="{{topic.lastPoster.url}}">
+                        {% if topic.lastPoster.avatarUrl|length > 0 %}
+                            <img src="{{topic.lastPoster.avatarUrl}}" alt="{{ topic.lastPoster.name }}_Avatar">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                <rect x="0" y="0" width="100%" height="100%" {{topic.lastPoster.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                style="font-size:45px;fill:white;">{{topic.lastPoster.name|first|upper}}</text>
+                            </svg>
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="te_lastpost_topic">
+                    <a href="{{topic.lastPoster.url}}">{{topic.lastPoster.prefix|raw}}{{topic.lastPoster.name}}{{topic.lastPoster.suffix|raw}}</a><br>
+                    {{topic.lastPoster.date}}
+                </div>
+            </div>
+        </li>
+        {% else %}
+        <li>
+            <span class="te_icon">
+            </span>
+            <span class="te_name">
+                You don't have any conversations at this moment
+            </span>
+            <span class="te_postcount">
+            </span>
+            <span class="te_lastpost">
+            </span>
+        </li>
+        {% endfor %}
+    </ul>        
+</section>
+
+{% include "components/pagination.twig" %}
+{% endblock %}

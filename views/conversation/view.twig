@@ -1,0 +1,159 @@
+{% extends 'master.twig' %}
+
+{% block pagebody %}
+
+    <section class="post_memberlist">Members: 
+        {% for member in conversation_info.members %}
+        <a href="{{member.url}}">{{member.prefix|raw}}{{member.name}}{{member.suffix|raw}}</a>{% if loop.last == false %}, {% endif %}
+        {% endfor %}
+    </section>
+
+    <div class="topic_buttonbar">
+        {% include "components/pagination.twig" %}
+    </div>
+
+    <section class="postlist_container">
+        <ul>
+            {% for post in messageList %}
+            {% if post.is_hidden %}
+            <li id="post{{post.index}}" class="pe_hidden">
+            {% else %}
+            <li id="post{{post.index}}">
+            {% endif %}
+                <div class="pe_titlebar_name">
+                    <a href="{{post.poster.url}}">{{post.poster.name}}</a>
+                </div>
+                <div class="pe_titlebar_tools">
+                    <div class="pe_titlebar_tools_date">Posted {{post.date}}</div>
+                    <div class="pe_titlebar_tools_buttons">
+
+                    </div>
+                </div>
+                <div class="pe_userinfo">
+                    <div class="pe_userinfo_avatar">
+                        {% if post.poster.avatarUrl|length > 0 %}
+                        <img src="{{post.poster.avatarUrl}}" alt="{{ post.poster.name }}_Avatar">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                <rect x="0" y="0" width="100%" height="100%" {{post.poster.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                style="font-size:45px;fill:white;">{{post.poster.name|first|upper}}</text>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="pe_userinfo_groupname">
+                        {{post.poster.prefix|raw}}{{post.poster.groupName}}{{post.poster.suffix|raw}}
+                    </div>
+                    <div class="pe_userinfo_postcount">
+                        <span class="material-symbols-outlined pe_userinfo_postcount_bubble">chat_bubble</span>
+                        <div class="pe_userinfo_postcount_number">{{post.poster.postCount}}</div>
+                    </div>                      
+                </div>
+                <div class="pe_message">
+                    {{post.message|raw}}
+                </div>
+                <div class="pe_footer_left">&nbsp;</div>
+                <div class="pe_footer_right">
+                    {% if user.login %}
+                    <div class="pe_footer_right_tools">
+                        <a href="javascript:addQuote({{post.index}}, '{{post.poster.name}}', '{{post.date}}')">Quote</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+
+            <li>
+                <div class="pe_titlebar_name">
+                    <a href="{{user.url}}">{{user.displayname}}</a>
+                </div>
+                <div class="pe_titlebar_tools"></div>
+                <div class="pe_userinfo">
+                    <div class="pe_userinfo_avatar">
+                        {% if user.avatarUrl|length > 0 %}
+                        <img src="{{user.avatarUrl}}" alt="{{ user.displayname }}_Avatar">
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                <rect x="0" y="0" width="100%" height="100%" {{user.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                style="font-size:45px;fill:white;">{{user.displayname|first|upper}}</text>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="pe_userinfo_groupname">
+                        {{user.group.prefix|raw}}{{user.group.name}}{{user.group.suffix|raw}}
+                    </div>
+                    <div class="pe_userinfo_postcount">
+                    </div>                      
+                </div>
+                <div class="pe_qrmessage">
+                    <div id="pe_quickreply">
+                    </div>
+                    <div class="pe_quickreply_buttons">
+                        <button class="btn" onclick="sendQuickReply()">Send</button>
+                    </div>
+                    <input type="hidden" name="conversation_index" value="{{conversation_info.index}}">
+                </div>
+                <div class="pe_footer_left"></div>
+                <div class="pe_footer_right"></div>
+            </li>            
+        </ul>        
+    </section>
+
+    {% include "components/pagination.twig" %}
+    
+
+{% endblock %}
+
+{% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block jscode %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<script>
+    const quill = new Quill('#pe_quickreply', 
+    {
+        placeholder: 'Reply to this private message..',
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image', 'video'],
+            ],
+        },
+    });
+
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', imageHandler);
+
+    async function sendQuickReply() {
+        const conversation_index = document.querySelector("input[name='conversation_index']").value;
+        const message = quill.getSemanticHTML();      
+
+        const postUrl = '{{path}}conversation/addmessage';
+        const postData = {
+                'conversation_index': conversation_index,
+                'message': message
+        }
+
+        await postAndRedirect(postUrl, postData);
+    }
+
+    function addQuote(post_index, username, date)
+    {
+        const postcontainer = document.getElementById(`post${post_index}`);
+        const postmessage = postcontainer.querySelector('.pe_message').innerHTML;
+
+        const quote = `<blockquote class="pe_quote"><div class="pe_quote_citation">${date}, ${username} said:</div><div class="pe_quote_content">${postmessage}</div></blockquote>`;
+        
+        //FIXME Blockquote is added once for each div for some reason, not just 1 blockquote with 2 divs in it.
+        quill.clipboard.dangerouslyPasteHTML(quote, 'user'); 
+        
+    }   
+
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'master.twig' %}
+
+
+{% block pagebody %}
+
+    <div class="topic_buttonbar">
+        {% include "components/pagination.twig" %}
+        {% if can_create_topic %}        
+        <span><a href="{{path}}forum/newtopic/{{forum_info.index}}"><button class="btn">Start new topic</button></a></span>
+        {% endif %}
+    </div>
+
+    
+
+    <section class="topiclist_container">
+        <ul>
+            {% for topic in topiclist %}
+            {% if topic.is_hidden %}
+            <li id="topic{{topic.index}}" class="te_hidden">
+            {% else %}
+            <li id="topic{{topic.index}}">
+            {% endif %}
+                <div class="te_icon {% if topic.hasNewPosts == true %}te_icon_on{% endif %}">
+                    {% if topic.isClosed %}
+                        <i class="material-symbols-outlined">lock</i>
+                    {% else %}
+                        <i class="material-symbols-outlined">forum</i>
+                    {% endif %}
+                </div>
+                <div class="te_name {% if topic.hasNewPosts == true %}te_unseen{% endif %}">
+                    {% if topic.isPinned %}
+                        <i class="material-symbols-outlined te_pinned_icon">keep</i>
+                    {% endif %}
+                    <a href="{{topic.url}}">{{topic.title}}</a>{% if topic.is_hidden %} <b><i>[Hidden Topic]</i></b> {% endif %}<br>
+                    By <a href="{{topic.starter.url}}" class="te_starter_link">{{topic.starter.prefix|raw}}{{topic.starter.name}}{{topic.starter.suffix|raw}}</a>,&nbsp;{{topic.starter.date}}
+                </div>
+                <div class="te_postcount">
+                    <div class="te_postcount_replies">{{topic.posts}} replies</div>
+                    <div class="te_postcount_views">{{topic.views}} views</div>
+                </div>
+                <div class="te_lastpost">
+                    <div class="te_lastpost_icon">
+                        <a href="{{topic.lastpost.url}}">
+                            {% if topic.lastpost.avatarUrl|length > 0 %}
+                                <img src="{{topic.lastpost.avatarUrl}}" alt="{{ topic.lastpost.name }}_Avatar">
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="display:block;">
+                                    <rect x="0" y="0" width="100%" height="100%" {{topic.lastpost.avatarBgColor|raw}} rx="10" ry="10"></rect>
+                                    <text x="50" y="50" dominant-baseline="central" text-anchor="middle" 
+                                    style="font-size:45px;fill:white;">{{topic.lastpost.name|first|upper}}</text>
+                                </svg>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="te_lastpost_topic">
+                        <a href="{{topic.lastpost.url}}">{{topic.lastpost.prefix|raw}}{{topic.lastpost.name}}{{topic.lastpost.suffix|raw}}</a><br>
+                        {{topic.lastpost.date}}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>        
+    </section>
+
+    {% include "components/pagination.twig" %}
+
+{% endblock %}
