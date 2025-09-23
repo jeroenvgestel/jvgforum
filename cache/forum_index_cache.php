@@ -44,27 +44,27 @@ return array (
     'name' => 'News',
     'desc' => 'All the latest new available here',
     'topic_count' => 0,
-    'post_count' => 0,
+    'post_count' => 14,
     'lastpost' => 
     array (
       'user' => 
       array (
-        'name' => NULL,
-        'url' => 'http://127.0.0.1/jvgforum/usercp/-1',
+        'name' => 'Administrator',
+        'url' => 'http://127.0.0.1/jvgforum/usercp/1',
         'style' => 'color:red;',
-        'avatarUrl' => NULL,
-        'avatarBgColor' => 'style="fill: " ',
-        'prefix' => NULL,
-        'suffix' => NULL,
+        'avatarUrl' => '',
+        'avatarBgColor' => 'style="fill: #3f8eca" ',
+        'prefix' => '<span style=\'color:#f44336\'>',
+        'suffix' => '</span>',
       ),
       'topic' => 
       array (
-        'index' => -1,
-        'title' => NULL,
-        'url' => 'http://127.0.0.1/jvgforum/topic/-1',
+        'index' => 1,
+        'title' => 'My First Topic',
+        'url' => 'http://127.0.0.1/jvgforum/topic/1',
       ),
-      'date' => 'Never',
-      'timestamp' => 0,
+      'date' => 'Just now',
+      'timestamp' => 1758636308,
     ),
     'parent' => NULL,
     'children' => 
