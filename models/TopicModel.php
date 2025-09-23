@@ -253,12 +253,12 @@
         
         /**
          * Add topic to the database and return the new topicIndex
-         * @param int $user_index
-         * @param int $forum_index
+         * @param int $userIndex
+         * @param int $forumIndex
          * @param string $title must be sanitized before
          * @return false|int false if failed, topicIndex when success
          */
-        public function addTopic(int $user_index, int $forum_index, string $title): false|int
+        public function addTopic(int $userIndex, int $forumIndex, string $title): false|int
         {
             if(!$db = $this->getDatabaseConnection())
                 return false;
@@ -267,11 +267,11 @@
 
             $topicIndex = -1;
             $result = $db->insert("t_topics", [
-                'a_forum_index' => $forum_index,
+                'a_forum_index' => $forumIndex,
                 'a_title' => $title,
-                'a_create_user' => $user_index,
+                'a_create_user' => $userIndex,
                 'a_create_time' => $timestamp,
-                'a_lastpost_user' => $user_index,
+                'a_lastpost_user' => $userIndex,
                 'a_lastpost_time' => $timestamp,
             ], $topicIndex);
 
