@@ -172,7 +172,7 @@
                 return Response::Fail('Your topic could not be added, please try again later');
             }
 
-            $this->postModel->addReplyToTopic($topicIndex, $forumIndex, $sanitizedMessage);
+            $this->postModel->addReplyToTopic($user->index, $topicIndex, $sanitizedMessage);
 
             Cache::SaveForumIndex();
 
