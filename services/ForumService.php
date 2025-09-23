@@ -162,7 +162,7 @@
 
             if($forumInfo->type == FORUM_TYPE_CAT)
             {
-                return Response::Fail('Its is not possible to create a topic in a category.', 401);
+                return Response::Fail('It is not possible to create a topic in a category.', 401);
             }
 
 

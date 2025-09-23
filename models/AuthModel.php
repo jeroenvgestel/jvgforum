@@ -41,7 +41,7 @@
         
         
         /**
-         * Verifies if the cookie key is in the database with the correspronding member
+         * Verifies if the cookie key is in the database with the corresponding member
          * @param int $userIndex
          * @param string $cookieKey
          * @return false|int false if not found, userIndex if found
