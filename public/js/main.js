@@ -104,9 +104,18 @@ function showErrorDialog(message)
     });
 }
 
-function redirect(url)
-{
-    window.location.href = url;
+function redirect(url) {
+
+    // If only a # is added, the standard reload doesn't work
+    if (window.location.href.split('#')[0] === url.split('#')[0])
+    {
+        window.location.href = url + '?force_reload=' + Date.now();
+        window.location.reload();
+    }
+    else
+    {
+        window.location.href = url;
+    }
 }
 
 function imageHandler()
