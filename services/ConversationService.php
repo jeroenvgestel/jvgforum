@@ -2,11 +2,11 @@
     
     class ConversationService extends Service
     {
-        private ConversationModel $conversationModel;
+        private ConversationRepository $conversationRepository;
         
-        public function __construct(ConversationModel $conversationModel)
+        public function __construct(ConversationRepository $conversationRepository)
         {
-            $this->conversationModel = $conversationModel;
+            $this->conversationRepository = $conversationRepository;
         }
         
         
@@ -19,7 +19,7 @@
         {
             $user = User::Instance();
             
-            $conversationList = $this->conversationModel->getConversationList($page, $user->index);
+            $conversationList = $this->conversationRepository->getConversationList($page, $user->index);
             if($conversationList === false)
             {
                 return false;
@@ -49,7 +49,7 @@
         {
             $user = User::Instance();
             
-            $conversationCount = $this->conversationModel->getConversationCount($user->index);
+            $conversationCount = $this->conversationRepository->getConversationCount($user->index);
             
             return new PaginationInfo(
                 url: URL . 'inbox/view/',
@@ -67,7 +67,7 @@
          */
         public function getConversationInfo(int $conversationIndex): false|ConversationInfo
         {
-            $conversationInfo = $this->conversationModel->getConversationInfo($conversationIndex);
+            $conversationInfo = $this->conversationRepository->getConversationInfo($conversationIndex);
             if($conversationInfo === false)
             {
                 return false;
@@ -85,7 +85,7 @@
          */
         public function getMessagePagination(int $conversationIndex, int $page = 1): PaginationInfo
         {
-            $postCount = $this->conversationModel->getMessageCount($conversationIndex);
+            $postCount = $this->conversationRepository->getMessageCount($conversationIndex);
             
             return new PaginationInfo(
                 url: URL . 'conversation/view/' . $conversationIndex,
@@ -103,7 +103,7 @@
          */
         public function getMessageList(int $conversationIndex, int $page): false|array
         {
-            $messageList = $this->conversationModel->getMessageList($conversationIndex, $page);
+            $messageList = $this->conversationRepository->getMessageList($conversationIndex, $page);
             if($messageList === false)
             {
                 return false;
@@ -121,7 +121,7 @@
          */
         public function registerConversationVisit(int $conversationIndex, int $userIndex): void
         {
-            $this->conversationModel->registerConversationVisit($conversationIndex, $userIndex);
+            $this->conversationRepository->registerConversationVisit($conversationIndex, $userIndex);
         }
         
         
@@ -145,7 +145,7 @@
                 return Response::Fail('You are not part of this conversation');
             }
             
-            $messageIndex = $this->conversationModel->addMessage($conversationIndex, $sanitizedMessage, $userIndex);
+            $messageIndex = $this->conversationRepository->addMessage($conversationIndex, $sanitizedMessage, $userIndex);
             if($messageIndex === false)
             {
                 return Response::Fail('Message could not be added, please try again later.');
@@ -166,7 +166,7 @@
         public function tryAddConversation(int $userIndex, string $title, string $sanitizedMessage, array $receipients): Response
         {
             $userIndices = [];
-            $failedReceipients = $this->conversationModel->getUserIndicesFromDisplaynames($receipients, $userIndices);
+            $failedReceipients = $this->conversationRepository->getUserIndicesFromDisplaynames($receipients, $userIndices);
             if($failedReceipients === false)
             {
                 return Response::Fail('An error occured while creating the conversation, please try again later!');
@@ -179,7 +179,7 @@
                 return $response;
             }
             
-            $conversationIndex = $this->conversationModel->createConversation($title, $sanitizedMessage, $userIndex, $userIndices);
+            $conversationIndex = $this->conversationRepository->createConversation($title, $sanitizedMessage, $userIndex, $userIndices);
             if($conversationIndex === false)
             {
                 return Response::Fail('An error occured while creating the conversation, please try again later!');
@@ -197,6 +197,6 @@
          */
         public function getUnreadConversationCount(int $userIndex): int
         {
-            return $this->conversationModel->getUnreadConversationCount($userIndex);
+            return $this->conversationRepository->getUnreadConversationCount($userIndex);
         }
     }

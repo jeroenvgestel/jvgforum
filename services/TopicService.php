@@ -2,15 +2,15 @@
 
     class TopicService extends Service
     {
-        private TopicModel $topicModel;
-        private PostModel $postModel;
-        private ForumModel $forumModel;
+        private TopicRepository $topicRepository;
+        private PostRepository $postRepository;
+        private ForumRepository $forumRepository;
 
-        public function __construct(TopicModel $topicModel, PostModel $postModel, ForumModel $forumModel)
+        public function __construct(TopicRepository $topicRepository, PostRepository $postRepository, ForumRepository $forumRepository)
         {
-            $this->topicModel = $topicModel;
-            $this->postModel = $postModel;
-            $this->forumModel = $forumModel;
+            $this->topicRepository = $topicRepository;
+            $this->postRepository = $postRepository;
+            $this->forumRepository = $forumRepository;
         }
 
         
@@ -37,18 +37,18 @@
             }
 
 
-            if(!$this->topicModel->userCanPostInTopic($topicIndex))
+            if(!$this->topicRepository->userCanPostInTopic($topicIndex))
             {
                 return Response::Fail('You are not allowed to post a message in this topic', 401);
             }
 
-            $postIndex = $this->postModel->addReplyToTopic($user->index, $topicIndex, $sanitizedMessage);
+            $postIndex = $this->postRepository->addReplyToTopic($user->index, $topicIndex, $sanitizedMessage);
             if($postIndex === false)
             {
                 return Response::Fail('Your reply could not be added, please try again later');
             }
 
-            $this->postModel->increaseUserPostCount($user->index);
+            $this->postRepository->increaseUserPostCount($user->index);
 
             $redirect_url = URL . 'topic/' . $topicIndex . '#post' . $postIndex;
 
@@ -64,7 +64,7 @@
          */
         public function getInfo(int $topicIndex): false|TopicInfo
         {
-            $topicInfo = $this->topicModel->getTopicInfo($topicIndex);
+            $topicInfo = $this->topicRepository->getTopicInfo($topicIndex);
             if($topicInfo === false)
             {
                 return false;
@@ -82,7 +82,7 @@
          */
         public function getPagination(int $topicIndex, int $page = 1): PaginationInfo
         {
-            $post_count = $this->topicModel->getPostCount($topicIndex);
+            $post_count = $this->topicRepository->getPostCount($topicIndex);
 
             return new PaginationInfo(
                 url: URL . 'topic/' . $topicIndex,
@@ -100,7 +100,7 @@
          */
         public function getPostList(int $topicIndex, int $page, TopicInfo $topicInfo): false|Array
         {
-            return $this->postModel->getList($topicIndex, $page, $topicInfo);
+            return $this->postRepository->getList($topicIndex, $page, $topicInfo);
         }
         
         
@@ -111,7 +111,7 @@
          */
         public function getInfoForEdit(int $topicIndex): false|EditTopicInfo
         {
-            return $this->topicModel->getInfoForEdit($topicIndex);
+            return $this->topicRepository->getInfoForEdit($topicIndex);
         }
 
 
@@ -142,13 +142,13 @@
             }
 
             
-            if(!$this->topicModel->userCanEditTopicandPost($topicIndex, $postIndex))
+            if(!$this->topicRepository->userCanEditTopicandPost($topicIndex, $postIndex))
             {
                 return Response::Fail('You are not allowed to edit this topic', 401);
             }
 
-            $this->topicModel->updateTitle($topicIndex, $title);
-            $this->postModel->updatePost($postIndex, User::Instance()->index, $sanitizedMessage);
+            $this->topicRepository->updateTitle($topicIndex, $title);
+            $this->postRepository->updatePost($postIndex, User::Instance()->index, $sanitizedMessage);
 
             $redirectUrl = URL . 'topic/' . $topicIndex;
 
@@ -164,7 +164,7 @@
          */
         public function toggleHide(int $topicIndex): Response
         {
-            $topicInfo = $this->topicModel->getTopicInfo($topicIndex);
+            $topicInfo = $this->topicRepository->getTopicInfo($topicIndex);
             if($topicInfo === false)
             {
                 return Response::Fail('No topic found with this id');
@@ -176,12 +176,12 @@
             }
 
             $setTopicHidden = !$topicInfo->isHidden;
-            $this->topicModel->setHide($topicInfo->index, $setTopicHidden);
+            $this->topicRepository->setHide($topicInfo->index, $setTopicHidden);
 
             ModerationLog::write("Hide Topic = $setTopicHidden", topicIndex: $topicInfo->index);
 
-            $this->forumModel->recountTopicsInForum($topicInfo->index);
-            $this->forumModel->updateForumLastPost($topicInfo->forum->index);
+            $this->forumRepository->recountTopicsInForum($topicInfo->index);
+            $this->forumRepository->updateForumLastPost($topicInfo->forum->index);
 
             Cache::SaveForumIndex();
 
@@ -197,7 +197,7 @@
          */
         public function togglePin(int $topicIndex): Response
         {
-            $topicInfo = $this->topicModel->getTopicInfo($topicIndex);
+            $topicInfo = $this->topicRepository->getTopicInfo($topicIndex);
             if($topicInfo === false)
             {
                 return Response::Fail('No topic found with this id');
@@ -209,7 +209,7 @@
             }
 
             $setTopicPinned = !$topicInfo->isPinned;
-            $this->topicModel->setPinned($topicInfo->index, $setTopicPinned);
+            $this->topicRepository->setPinned($topicInfo->index, $setTopicPinned);
 
             ModerationLog::write("Pin Topic = $setTopicPinned", topicIndex: $topicInfo->index);
 
@@ -224,7 +224,7 @@
          */
         public function ToggleClose(int $topicIndex): Response
         {
-            $topicInfo = $this->topicModel->getTopicInfo($topicIndex);
+            $topicInfo = $this->topicRepository->getTopicInfo($topicIndex);
             if($topicInfo === false)
             {
                 return Response::Fail('No topic found with this id');
@@ -236,7 +236,7 @@
             }
 
             $setTopicClosed = !$topicInfo->isClosed;
-            $this->topicModel->setClosed($topicInfo->index, $setTopicClosed);
+            $this->topicRepository->setClosed($topicInfo->index, $setTopicClosed);
 
             ModerationLog::write("Close Topic = $setTopicClosed", topicIndex: $topicInfo->index);
 
@@ -251,7 +251,7 @@
          */
         public function getForumListForMoveTopic(): false|array
         {
-            return $this->topicModel->getForumList();
+            return $this->topicRepository->getForumList();
         }
 
 
@@ -269,7 +269,7 @@
                 return Response::Fail('You need to be logged in for this function');
 
 
-            $topicInfo = $this->topicModel->getTopicInfo($topicIndex);
+            $topicInfo = $this->topicRepository->getTopicInfo($topicIndex);
             if($topicInfo === false)
             {
                 return Response::Fail('No topic found with this id');
@@ -281,15 +281,15 @@
             if(!Permissions::CanSeeForum($forumIndex))
                 return Response::Fail('You don\'t have permission to move topics to this forum');
 
-            if(!$this->topicModel->moveTopic($topicInfo->index, $forumIndex))
+            if(!$this->topicRepository->moveTopic($topicInfo->index, $forumIndex))
                 return Response::Fail('Failed to move topic');
 
 
-            $this->forumModel->recountTopicsInForum($topicInfo->forum->index);
-            $this->forumModel->updateForumLastPost($topicInfo->forum->index);
+            $this->forumRepository->recountTopicsInForum($topicInfo->forum->index);
+            $this->forumRepository->updateForumLastPost($topicInfo->forum->index);
             
-            $this->topicModel->recountPostsInTopic($topicInfo->index);
-            $this->forumModel->updateForumLastPost($forumIndex);
+            $this->topicRepository->recountPostsInTopic($topicInfo->index);
+            $this->forumRepository->updateForumLastPost($forumIndex);
 
             Cache::SaveForumIndex();
 
@@ -299,6 +299,6 @@
         
         public function registerTopicVisit(int $topicIndex, int $userIndex): void
         {
-            $this->topicModel->registerTopicVisit($topicIndex, $userIndex);
+            $this->topicRepository->registerTopicVisit($topicIndex, $userIndex);
         }
     }

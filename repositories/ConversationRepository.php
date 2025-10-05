@@ -1,6 +1,6 @@
 <?php
     
-    class ConversationModel extends MysqlModel
+    class ConversationRepository extends MysqlRepository
     {
         /**
          * Reads the amount of conversations the user is in

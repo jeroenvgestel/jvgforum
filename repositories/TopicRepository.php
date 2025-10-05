@@ -1,6 +1,6 @@
 <?php
 
-    class TopicModel extends MysqlModel
+    class TopicRepository extends MysqlRepository
     {
         private ?TopicInfo $topicInfo;
 

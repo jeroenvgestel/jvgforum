@@ -2,11 +2,11 @@
     
     class AuthService extends Service
     {
-        private AuthModel $authModel;
+        private AuthRepository $authRepository;
         
-        public function __construct(AuthModel $authModel)
+        public function __construct(AuthRepository $authRepository)
         {
-            $this->authModel = $authModel;
+            $this->authRepository = $authRepository;
         }
         
         
@@ -19,7 +19,7 @@
         {
             if(isset($_COOKIE[Config::COOKIE_NAME]))
             {
-                $this->authModel->deleteCookie($user->cookieKey);
+                $this->authRepository->deleteCookie($user->cookieKey);
                 setcookie(Config::COOKIE_NAME, '', 1, '/');
             }
             
@@ -38,7 +38,7 @@
          */
         public function tryLoginUser(string $username, string $password, bool $setCookie): Response
         {
-            $userIndex = $this->authModel->verifyLoginDetails($username, $password);
+            $userIndex = $this->authRepository->verifyLoginDetails($username, $password);
             if ($userIndex === false)
             {
                 return Response::Fail('Invalid username or password');
@@ -71,7 +71,7 @@
                 $userIndex = $cookieData['userIndex'];
                 $cookieKey = $cookieData['cookieKey'];
                 
-                $verifiedUserIndex = $this->authModel->verifyCookieKey($userIndex, $cookieKey);
+                $verifiedUserIndex = $this->authRepository->verifyCookieKey($userIndex, $cookieKey);
                 if($verifiedUserIndex === false)
                     return false;
                 
@@ -189,7 +189,7 @@
             if(!$result)
                 return;
             
-            $this->authModel->storeCookie($user->index, $cookieKey, $expireTime);
+            $this->authRepository->storeCookie($user->index, $cookieKey, $expireTime);
             
         }
         
@@ -217,12 +217,12 @@
          */
         public function loginUser($userIndex, User $user, bool $setCookie = false): bool
         {
-            if(!$this->authModel->setUserInfo($userIndex, $user))
+            if(!$this->authRepository->setUserInfo($userIndex, $user))
                 return false;
             
             $this->createSession($user);
             
-            $this->authModel->updateUserLastActive($user->index);
+            $this->authRepository->updateUserLastActive($user->index);
 
             if($setCookie)
                 $this->createCookie($user);
@@ -231,7 +231,7 @@
             
             // TODO: This should be somewhere else
             $conversationService = new ConversationService(
-                new ConversationModel()
+                new ConversationRepository()
             );
             
             $unreadConversations = $conversationService->getUnreadConversationCount($user->index);

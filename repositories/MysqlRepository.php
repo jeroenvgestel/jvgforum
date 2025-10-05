@@ -1,6 +1,6 @@
 <?php
     
-    class MysqlModel extends Model
+    class MysqlRepository extends Repository
     {
         protected function getDatabaseConnection(): false|PdoExt
         {

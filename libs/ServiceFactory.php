@@ -3,42 +3,42 @@
     class ServiceFactory
     {
         /**
-         * @param AuthModel $authModel
+         * @param AuthRepository $authRepository
          * @return AuthService
          */
         public static function createAuthService(
-            AuthModel $authModel = new AuthModel()
+            AuthRepository $authRepository = new AuthRepository()
         ): AuthService
         {
-            return new AuthService($authModel);
+            return new AuthService($authRepository);
         }
         
         
         /**
-         * @param ConversationModel $conversationModel
+         * @param ConversationRepository $conversationRepository
          * @return ConversationService
          */
         public static function createConversationService(
-            ConversationModel $conversationModel = new ConversationModel()
+            ConversationRepository $conversationRepository = new ConversationRepository()
         ): ConversationService
         {
-            return new ConversationService($conversationModel);
+            return new ConversationService($conversationRepository);
         }
         
         
         /**
-         * @param ForumModel $forumModel
-         * @param TopicModel $topicModel
-         * @param PostModel $postModel
+         * @param ForumRepository $forumRepository
+         * @param TopicRepository $topicRepository
+         * @param PostRepository $postRepository
          * @return ForumService
          */
         public static function createForumService(
-            ForumModel $forumModel = new ForumModel(),
-            TopicModel $topicModel = new TopicModel(),
-            PostModel $postModel = new PostModel()
+            ForumRepository $forumRepository = new ForumRepository(),
+            TopicRepository $topicRepository = new TopicRepository(),
+            PostRepository  $postRepository = new PostRepository()
         ): ForumService
         {
-            return new ForumService($forumModel, $topicModel, $postModel);
+            return new ForumService($forumRepository, $topicRepository, $postRepository);
         }
         
         
@@ -52,70 +52,70 @@
         
         
         /**
-         * @param LoggingModel $loggingModel
+         * @param LoggingRepository $loggingRepository
          * @return LoggingService
          */
         public static function createLoginService(
-            LoggingModel $loggingModel = new LoggingModel()
+            LoggingRepository $loggingRepository = new LoggingRepository()
         ): LoggingService
         {
-            return new LoggingService($loggingModel);
+            return new LoggingService($loggingRepository);
         }
         
         
         /**
-         * @param PostModel $postModel
-         * @param TopicModel $topicModel
-         * @param ForumModel $forumModel
+         * @param PostRepository $postRepository
+         * @param TopicRepository $topicRepository
+         * @param ForumRepository $forumRepository
          * @return PostService
          */
         public static function createPostService(
-            PostModel $postModel = new PostModel(),
-            TopicModel $topicModel = new TopicModel(),
-            ForumModel $forumModel = new ForumModel()
+            PostRepository  $postRepository = new PostRepository(),
+            TopicRepository $topicRepository = new TopicRepository(),
+            ForumRepository $forumRepository = new ForumRepository()
         ): PostService
         {
-            return new PostService($postModel, $topicModel, $forumModel);
+            return new PostService($postRepository, $topicRepository, $forumRepository);
         }
         
         
         /**
-         * @param RegistrationModel $registrationModel
+         * @param RegistrationRepository $registrationRepository
          * @return RegistrationService
          */
         public static function createRegistrationService(
-            RegistrationModel $registrationModel = new RegistrationModel()
+            RegistrationRepository $registrationRepository = new RegistrationRepository()
         ): RegistrationService
         {
-            return new RegistrationService($registrationModel);
+            return new RegistrationService($registrationRepository);
         }
         
         
         /**
-         * @param TopicModel $topicModel
-         * @param PostModel $postModel
-         * @param ForumModel $forumModel
+         * @param TopicRepository $topicRepository
+         * @param PostRepository $postRepository
+         * @param ForumRepository $forumRepository
          * @return TopicService
          */
         public static function createTopicService(
-            TopicModel $topicModel = new TopicModel(),
-            PostModel $postModel = new PostModel(),
-            ForumModel $forumModel = new ForumModel()
+            TopicRepository $topicRepository = new TopicRepository(),
+            PostRepository  $postRepository = new PostRepository(),
+            ForumRepository $forumRepository = new ForumRepository()
         ): TopicService
         {
-            return new TopicService($topicModel, $postModel, $forumModel);
+            return new TopicService($topicRepository, $postRepository, $forumRepository);
         }
         
         
         /**
-         * @param UserModel $userModel
+         * @param UserRepository $userRepository
          * @return UserService
          */
         public static function createUserService(
-            UserModel $userModel = new UserModel()
+            UserRepository $userRepository = new UserRepository()
         ): UserService
         {
-            return new UserService($userModel);
+            return new UserService($userRepository);
         }
         
         

@@ -2,17 +2,16 @@
     
     class PostService extends Service
     {
-        private PostModel $postModel;
-        private TopicModel $topicModel;
-        private ForumModel $forumModel;
+        private PostRepository $postRepository;
+        private TopicRepository $topicRepository;
+        private ForumRepository $forumRepository;
         
-        public function __construct(PostModel $postModel, TopicModel $topicModel, ForumModel $forumModel)
+        public function __construct(PostRepository $postRepository, TopicRepository $topicRepository, ForumRepository $forumRepository)
         {
-            $this->postModel = $postModel;
-            $this->topicModel = $topicModel;
-            $this->forumModel = $forumModel;
+            $this->postRepository = $postRepository;
+            $this->topicRepository = $topicRepository;
+            $this->forumRepository = $forumRepository;
         }
-        
         
         /**
          * Get some basic metadata from a post
@@ -21,15 +20,14 @@
          */
         public function getPostInfoSmall(int $postIndex): false|PostInfoSmall
         {
-            $postInfoSmall = $this->postModel->getPostInfoSmall($postIndex);
-            if($postInfoSmall === false)
+            $postInfoSmall = $this->postRepository->getPostInfoSmall($postIndex);
+            if ($postInfoSmall === false)
             {
                 return false;
             }
             
             return $postInfoSmall;
         }
-        
         
         /**
          * Gets all the information about a post
@@ -38,18 +36,19 @@
          */
         public function getPostInfo(int $postIndex): false|PostInfo
         {
-            if(!Utils::isNumeric($postIndex))
+            if (!Utils::isNumeric($postIndex))
+            {
                 return false;
+            }
             
-            $postInfo = $this->postModel->getPostInfo($postIndex);
-            if($postInfo === false)
+            $postInfo = $this->postRepository->getPostInfo($postIndex);
+            if ($postInfo === false)
             {
                 return false;
             }
             
             return $postInfo;
         }
-        
         
         /**
          * Processes all the data to like a post
@@ -59,44 +58,41 @@
         public function likePost(int $postIndex): Response
         {
             $user = User::Instance();
-            if(!$user->IsLoggedIn())
+            if (!$user->IsLoggedIn())
             {
-                return Response::Fail('User not logged in', 401);
+                return Response::Fail("User not logged in", 401);
             }
             
             $postInfoSmall = $this->getPostInfoSmall($postIndex);
-            if($postInfoSmall === false)
+            if ($postInfoSmall === false)
             {
-                return Response::Fail('Post does not exist');
+                return Response::Fail("Post does not exist");
             }
             
-            if($postInfoSmall->memberIndex == $user->index)
+            if ($postInfoSmall->memberIndex == $user->index)
             {
-                return Response::Fail('You can not like your own post');
+                return Response::Fail("You can not like your own post");
             }
             
-            if(!Permissions::CanSeeForum($postInfoSmall->forumIndex))
+            if (!Permissions::CanSeeForum($postInfoSmall->forumIndex))
             {
                 return Response::Fail('You don\'t have permission to like this post', 401);
             }
             
-            if($postInfoSmall->isTopicClosed == 1)
+            if ($postInfoSmall->isTopicClosed == 1)
             {
-                return Response::Fail('You can not (un)like a post in a closed topic', 401);
+                return Response::Fail("You can not (un)like a post in a closed topic", 401);
             }
             
-            
-            if(!$this->postModel->toggleLike($postIndex, $user->index))
+            if (!$this->postRepository->toggleLike($postIndex, $user->index))
             {
-                return Response::Fail('Failed to like post, please try again later', 500);
+                return Response::Fail("Failed to like post, please try again later", 500);
             }
-
-            $likesData = $this->postModel->getLikes($postIndex);
-
             
-            return Response::Success('', '', $likesData);
+            $likesData = $this->postRepository->getLikes($postIndex);
+            
+            return Response::Success("", "", $likesData);
         }
-        
         
         /**
          * Hide a topic that is shown, or show a topic that is hidden
@@ -107,38 +103,36 @@
         public function toggleHide(int $postIndex): Response
         {
             $postInfoSmall = $this->getPostInfoSmall($postIndex);
-            if(!$postInfoSmall)
+            if (!$postInfoSmall)
             {
-                return Response::Fail('No post info found');
+                return Response::Fail("No post info found");
             }
             
             $user = User::Instance();
-            if(!$user->CanModerateForum($postInfoSmall->forumIndex))
+            if (!$user->CanModerateForum($postInfoSmall->forumIndex))
             {
-                return Response::Fail('Not allowed', 401);
+                return Response::Fail("Not allowed", 401);
             }
             
-            
-            if(!$this->postModel->setHide($postIndex, !$postInfoSmall->isHidden))
+            if (!$this->postRepository->setHide($postIndex, !$postInfoSmall->isHidden))
             {
-                return Response::Fail('Failed to toggle', 500);
+                return Response::Fail("Failed to toggle", 500);
             }
-           
             
-            $this->topicModel->recountPostsInTopic($postInfoSmall->topicIndex);
-            $this->topicModel->updateTopicLastPost($postInfoSmall->topicIndex);
+            $this->topicRepository->recountPostsInTopic($postInfoSmall->topicIndex);
+            $this->topicRepository->updateTopicLastPost($postInfoSmall->topicIndex);
             
             // Only create a new index cache when the info has changed
-            if($this->forumModel->updateForumLastPost($postInfoSmall->forumIndex))
+            if ($this->forumRepository->updateForumLastPost($postInfoSmall->forumIndex))
+            {
                 Cache::SaveForumIndex();
+            }
             
-            
-            $setHide = $postInfoSmall->isHidden ? 'Show' : 'Hide';
+            $setHide = $postInfoSmall->isHidden ? "Show" : "Hide";
             ModerationLog::write("Hide Post = $setHide", postIndex: $postInfoSmall->postIndex);
             
             return Response::Success();
         }
-        
         
         /**
          * Mutate the data to update a post to the storage
@@ -149,39 +143,36 @@
         public function tryUpdatePost(int $postIndex, string $message): Response
         {
             $user = User::Instance();
-            if(!$user->IsLoggedIn())
+            if (!$user->IsLoggedIn())
             {
-                return Response::Fail('You need to login before you can edit messages');
+                return Response::Fail("You need to login before you can edit messages");
             }
             
             $sanitizedMessage = Sanitizer::Sanitize($message);
-            if(strlen($sanitizedMessage) < 2)
+            if (strlen($sanitizedMessage) < 2)
             {
-                return Response::Fail('Your message is too short!');
+                return Response::Fail("Your message is too short!");
             }
-
             
             $postInfo = $this->getPostInfo($postIndex);
-            if($postInfo === false)
+            if ($postInfo === false)
             {
-                return Response::Fail('Post does not exist');
+                return Response::Fail("Post does not exist");
             }
             
-            if($postInfo->canEdit === false)
+            if ($postInfo->canEdit === false)
             {
-                return Response::Fail('You are not allowed to edit this message');
+                return Response::Fail("You are not allowed to edit this message");
             }
             
-            if(!$this->postModel->updatePost($postIndex, $user->index, $sanitizedMessage))
+            if (!$this->postRepository->updatePost($postIndex, $user->index, $sanitizedMessage))
             {
-                return Response::Fail('Failed to update post', 500);
+                return Response::Fail("Failed to update post", 500);
             }
             
-            $page = $this->postModel->getPageInTopic($postInfo->index, $postInfo->topic->index);
+            $page = $this->postRepository->getPageInTopic($postInfo->index, $postInfo->topic->index);
             $redirect_url = URL . "topic/$postInfo->topic->index/$page#post$postInfo->index";
             
-            return Response::Success('OK', $redirect_url);
+            return Response::Success("OK", $redirect_url);
         }
-        
-        
     }

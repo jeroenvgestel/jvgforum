@@ -3,7 +3,7 @@
     const FORUM_TYPE_CAT = 0;
     //const FORUM_TYPE_FORUM = 1;
 
-    class ForumModel extends MysqlModel
+    class ForumRepository extends MysqlRepository
     {
 
         /**

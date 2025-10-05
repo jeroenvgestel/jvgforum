@@ -2,16 +2,16 @@
     
     class UserService extends Service
     {
-        private UserModel $userModel;
+        private UserRepository $userRepository;
         
-        public function __construct(UserModel $userModel)
+        public function __construct(UserRepository $userRepository)
         {
-            $this->userModel = $userModel;
+            $this->userRepository = $userRepository;
         }
         
         public function getUserInfo(int $userIndex): false|UserInfo
         {
-            $userInfo = $this->userModel->getUserInfo($userIndex);
+            $userInfo = $this->userRepository->getUserInfo($userIndex);
             if($userInfo === false)
             {
                 return false;

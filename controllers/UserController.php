@@ -17,7 +17,7 @@
             
             
             $userService =new UserService(
-                new UserModel()
+                new UserRepository()
             );
             
             $userInfo = $userService->getUserInfo($memberIndex);

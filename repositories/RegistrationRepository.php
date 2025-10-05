@@ -1,6 +1,6 @@
 <?php
     
-    class RegistrationModel extends MysqlModel
+    class RegistrationRepository extends MysqlRepository
     {
         /**
          * Checks in the database if the username is available to use

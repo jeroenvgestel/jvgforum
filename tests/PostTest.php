@@ -10,8 +10,11 @@
         {
             $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
             
-            $postModel = new PostModel();
-            $postModel->addReplyToTopic(1, 4, "Test Reply");
+            $postRepository = new PostRepository();
+            $result = $postRepository->addReplyToTopic(1, 4, "Test Reply");
             
+            $this->assertNotFalse($result);
+            
+            $this->assertIsNumeric($result);
         }
     }

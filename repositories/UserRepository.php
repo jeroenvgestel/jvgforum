@@ -1,6 +1,6 @@
 <?php
 
-    class UserModel extends MysqlModel
+    class UserRepository extends MysqlRepository
     {
         /**
          * Gets the user information from the database

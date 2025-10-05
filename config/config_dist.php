@@ -8,7 +8,7 @@
     const CONTROLLER_PATH = 'controllers/';
     const SERVICE_PATH = 'services/';
     const VIEW_PATH = 'views/';
-    const STRUCTURES_PATH = 'structures/';
+    const STRUCTURES_PATH = 'models/';
     const DEFAULT_TITLE = ''; // Page Title
     
 

@@ -1,6 +1,6 @@
 <?php
 
-    class PostModel extends MysqlModel
+    class PostRepository extends MysqlRepository
     {
         
         /**

@@ -221,7 +221,7 @@
             
             
             //TODO: Maybe change into a setting, where each usergroup can have different limits
-            if(count($receipients) < 1 || count($receipients) > Config::PM_ALLOWED_RECEIPIENTS)
+            if(count($receipients) < 1 || count($receipients) > Config::PM_ALLOWED_RECIPIENTS)
             {
                 Response::Fail('You have to choose between 1 and 10 receipients.')->sendJSON();
                 return;

@@ -1,6 +1,6 @@
 <?php
     
-    class AuthModel extends MysqlModel
+    class AuthRepository extends MysqlRepository
     {
         
         /**

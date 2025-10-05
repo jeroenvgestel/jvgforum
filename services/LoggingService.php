@@ -2,11 +2,11 @@
     
     class LoggingService extends Service
     {
-        private LoggingModel $loggingModel;
+        private LoggingRepository $loggingRepository;
         
-        public function __construct(LoggingModel $loggingModel)
+        public function __construct(LoggingRepository $loggingRepository)
         {
-            $this->loggingModel = $loggingModel;
+            $this->loggingRepository = $loggingRepository;
         }
         
         
@@ -21,6 +21,6 @@
          */
         public function addModerationLog(string $action, int $forumIndex, int $topicIndex, int $postIndex, int $memberIndex): bool
         {
-            return $this->loggingModel->addModerationLog($action, $forumIndex, $topicIndex, $postIndex, $memberIndex);
+            return $this->loggingRepository->addModerationLog($action, $forumIndex, $topicIndex, $postIndex, $memberIndex);
         }
     }

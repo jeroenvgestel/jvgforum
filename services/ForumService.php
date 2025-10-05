@@ -5,16 +5,16 @@
      */
     class ForumService extends Service
     {
-        private ForumModel $forumModel;
-        private TopicModel $topicModel;
-        private PostModel $postModel;
+        private ForumRepository $forumRepository;
+        private TopicRepository $topicRepository;
+        private PostRepository $postRepository;
 
 
-        public function __construct(ForumModel $forumModel, TopicModel $topicModel, PostModel $postModel)
+        public function __construct(ForumRepository $forumRepository, TopicRepository $topicRepository, PostRepository $postRepository)
         {
-            $this->forumModel = $forumModel;
-            $this->topicModel = $topicModel;
-            $this->postModel = $postModel;
+            $this->forumRepository = $forumRepository;
+            $this->topicRepository = $topicRepository;
+            $this->postRepository = $postRepository;
         }
 
 
@@ -27,7 +27,7 @@
          */
         public function getInfo(int $forumIndex): false|Forum
         {
-            $forumInfo = $this->forumModel->getInfo($forumIndex);
+            $forumInfo = $this->forumRepository->getInfo($forumIndex);
             if($forumInfo === false)
             {
                 return false;
@@ -46,7 +46,7 @@
          */
         public function getPagination(int $forumIndex, int $page = 1): PaginationInfo
         {
-            $topicCount = $this->forumModel->getTopicCount($forumIndex);
+            $topicCount = $this->forumRepository->getTopicCount($forumIndex);
 
 
             return new PaginationInfo(
@@ -67,7 +67,7 @@
          */
         public function getTopicList(int $forumIndex, int $page = 1): false|Array
         {
-            $topicList = $this->topicModel->getList($forumIndex, $page);
+            $topicList = $this->topicRepository->getList($forumIndex, $page);
             if($topicList === false)
             {
                 return false;
@@ -85,7 +85,7 @@
          */
         public function getPaginationRecent(int $page = 1): false|Array
         {
-            $topic_count = $this->forumModel->getRecentTopicCount();
+            $topic_count = $this->forumRepository->getRecentTopicCount();
 
             return [
                 'url' => URL . 'forum/recent',
@@ -105,7 +105,7 @@
          */
         public function getRecentTopicList(int $page = 1): false|Array
         {
-            $topicList = $this->topicModel->getRecentList($page);
+            $topicList = $this->topicRepository->getRecentList($page);
             if($topicList === false)
             {
                 return false;
@@ -166,17 +166,17 @@
             }
 
 
-            $topicIndex = $this->topicModel->addTopic($user->index, $forumIndex, $title);
+            $topicIndex = $this->topicRepository->addTopic($user->index, $forumIndex, $title);
             if($topicIndex === false)
             {
                 return Response::Fail('Your topic could not be added, please try again later');
             }
 
-            $this->postModel->addReplyToTopic($user->index, $topicIndex, $sanitizedMessage);
+            $this->postRepository->addReplyToTopic($user->index, $topicIndex, $sanitizedMessage);
 
             Cache::SaveForumIndex();
 
-            $this->postModel->increaseUserPostCount($user->index);
+            $this->postRepository->increaseUserPostCount($user->index);
 
             return Response::Success('OK', URL . 'forum/view/' . $forumIndex);
 
@@ -190,7 +190,7 @@
          */
         public function markAllForumsRead(int $userIndex): bool
         {
-            return $this->forumModel->markAllForumsRead($userIndex);
+            return $this->forumRepository->markAllForumsRead($userIndex);
         }
 
     }

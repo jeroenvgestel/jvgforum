@@ -1,6 +1,6 @@
 <?php
     
-    class LoggingModel extends MysqlModel
+    class LoggingRepository extends MysqlRepository
     {
         
         /**

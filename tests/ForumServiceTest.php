@@ -7,22 +7,22 @@
     
     class ForumServiceTest extends TestCase
     {
-        private MockObject $forumModelMock;
-        private MockObject $topicModelMock;
-        private MockObject $postModelMock;
+        private MockObject $forumRepositoryMock;
+        private MockObject $topicRepositoryMock;
+        private MockObject $postRepositoryMock;
         
         private  ForumService $forumService;
         
         protected function setUp(): void
         {
-            $this->forumModelMock = $this->createMock(ForumModel::class);
-            $this->topicModelMock = $this->createMock(TopicModel::class);
-            $this->postModelMock = $this->createMock(PostModel::class);
+            $this->forumRepositoryMock = $this->createMock(ForumRepository::class);
+            $this->topicRepositoryMock = $this->createMock(TopicRepository::class);
+            $this->postRepositoryMock = $this->createMock(PostRepository::class);
             
             $this->forumService = ServiceFactory::createForumService(
-                $this->forumModelMock,
-                $this->topicModelMock,
-                $this->postModelMock
+                $this->forumRepositoryMock,
+                $this->topicRepositoryMock,
+                $this->postRepositoryMock
             );
             
             $user = User::instance();
@@ -40,7 +40,7 @@
             $forum->desc = 'test';
             $forum->parent = null;
             
-            $this->forumModelMock->method('getInfo')
+            $this->forumRepositoryMock->method('getInfo')
                 ->with(1)
                 ->willReturn($forum);
             
@@ -56,7 +56,7 @@
             $topicCount = 200;
             $pageCount = ceil($topicCount / Config::TOPICS_PER_PAGE);
             
-            $this->forumModelMock->method('getTopicCount')
+            $this->forumRepositoryMock->method('getTopicCount')
                 ->with($forumIndex)
                 ->willReturn($topicCount);
             

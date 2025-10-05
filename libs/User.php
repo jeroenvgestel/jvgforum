@@ -61,7 +61,7 @@
         public function checkLogin(): bool
         {
             $authService = new AuthService(
-                new AuthModel()
+                new AuthRepository()
             );
             
             return $authService->checkIsUserLoggedIn($this);

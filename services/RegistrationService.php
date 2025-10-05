@@ -2,26 +2,26 @@
     
     class RegistrationService extends Service
     {
-        private RegistrationModel $registrationModel;
+        private RegistrationRepository $registrationRepository;
         
-        public function __construct(RegistrationModel $registrationModel)
+        public function __construct(RegistrationRepository $registrationRepository)
         {
-            $this->registrationModel = $registrationModel;
+            $this->registrationRepository = $registrationRepository;
         }
         
         public function registerUser(string $userName, string $password, string $email): Response
         {
-            if(!$this->registrationModel->isUsernameAvailable($userName))
+            if(!$this->registrationRepository->isUsernameAvailable($userName))
             {
                 return Response::Fail("Username already exists");
             }
             
-            if(!$this->registrationModel->isEmailAvailable($email))
+            if(!$this->registrationRepository->isEmailAvailable($email))
             {
                 return Response::Fail("Email already exists");
             }
             
-            $verificationCode = $this->registrationModel->createPendingUser($userName, $password, $email);
+            $verificationCode = $this->registrationRepository->createPendingUser($userName, $password, $email);
             if($verificationCode === false)
             {
                 return Response::Fail("Could not create user, please try again later");
@@ -40,13 +40,13 @@
         
         public function validateEmailedVerificationCode(string $verificationCode): Response
         {
-            $registrationInfo = $this->registrationModel->getRegistrationInfo($verificationCode);
+            $registrationInfo = $this->registrationRepository->getRegistrationInfo($verificationCode);
             if($registrationInfo === false)
             {
                 return Response::Fail("Invalid activation code");
             }
             
-            if(!$this->registrationModel->activateUser($registrationInfo))
+            if(!$this->registrationRepository->activateUser($registrationInfo))
             {
                 return Response::Fail("Could not activate user, please try again later");
             }
